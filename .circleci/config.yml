@@ -581,7 +581,7 @@ jobs:
       - run:
           name: Install build dependencies
           command: |
-            pacman --noconfirm -Syu --noprogressbar --needed base-devel boost cmake z3 cvc4 git openssh tar
+            pacman --noconfirm -Syu --noprogressbar --needed base-devel boost cmake z3 git openssh tar
       - checkout
       - run: *run_build
       - store_artifacts: *artifacts_solc
@@ -729,7 +729,7 @@ jobs:
         - run:
             name: Install runtime dependencies
             command: |
-              pacman --noconfirm -Syu --noprogressbar --needed base-devel boost cmake z3 cvc4 git openssh tar
+              pacman --noconfirm -Syu --noprogressbar --needed base-devel boost cmake z3 git openssh tar
         - checkout
         - attach_workspace:
             at: build

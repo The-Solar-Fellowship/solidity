@@ -932,16 +932,20 @@ void BMC::checkCondition(
 		solAssert(!_callStack.empty(), "");
 		std::ostringstream message;
 		message << "BMC: " << _description << " happens here.";
-		std::ostringstream modelMessage;
-		modelMessage << "Counterexample:\n";
-		solAssert(values.size() == expressionNames.size(), "");
-		map<string, string> sortedModel;
-		for (size_t i = 0; i < values.size(); ++i)
-			if (expressionsToEvaluate.at(i).name != values.at(i))
-				sortedModel[expressionNames.at(i)] = values.at(i);
 
-		for (auto const& eval: sortedModel)
-			modelMessage << "  " << eval.first << " = " << eval.second << "\n";
+		std::ostringstream modelMessage;
+		// Sometimes models have complex smtlib2 expressions that SMTLib2Interface fails to parse.
+		if (values.size() == expressionNames.size())
+		{
+			modelMessage << "Counterexample:\n";
+			map<string, string> sortedModel;
+			for (size_t i = 0; i < values.size(); ++i)
+				if (expressionsToEvaluate.at(i).name != values.at(i))
+					sortedModel[expressionNames.at(i)] = values.at(i);
+
+			for (auto const& eval: sortedModel)
+				modelMessage << "  " << eval.first << " = " << eval.second << "\n";
+		}
 
 		m_errorReporter.warning(
 			_errorHappens,

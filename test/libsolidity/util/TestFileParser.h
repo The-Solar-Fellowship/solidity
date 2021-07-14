@@ -16,6 +16,7 @@
 
 #include <liblangutil/Exceptions.h>
 #include <libsolutil/CommonData.h>
+#include <libsolutil/JSON.h>
 #include <test/libsolidity/util/SoltestTypes.h>
 
 #include <iosfwd>
@@ -52,10 +53,27 @@ class TestFileParser
 public:
 	/// Constructor that takes an input stream \param _stream to operate on
 	/// and creates the internal scanner.
-	explicit TestFileParser(std::istream& _stream, std::map<std::string, Builtin> const& _builtins):
+	explicit TestFileParser(std::istream& _stream, std::map<std::string, Builtin> const& _builtins, Json::Value const& _contractAbi):
 		m_scanner(_stream),
-		m_builtins(_builtins)
-	{}
+		m_builtins(_builtins),
+		m_contractAbi(_contractAbi)
+	{
+		for (auto const& m: m_contractAbi)
+		{
+			std::string str{m["name"].asString() + "("};
+			for (auto const& i: m["inputs"])
+				if (i["type"])
+					str += i["type"].asString() + ",";
+			if (str[str.length() - 1] == ',')
+				str[str.length() - 1] = ')';
+			else
+				str += ")";
+			m_returnTypes[str].clear();
+			for (auto const& o: m["outputs"])
+				if (o["type"])
+					m_returnTypes[str].push_back(o["type"].asString());
+		}
+	}
 
 	/// Parses function calls blockwise and returns a list of function calls found.
 	/// Throws an exception if a function call cannot be parsed because of its
@@ -140,10 +158,10 @@ private:
 	/// Parses a comma-separated list of arguments passed with a function call.
 	/// Does not check for a potential mismatch between the signature and the number
 	/// or types of arguments.
-	FunctionCallArgs parseFunctionCallArguments();
+	FunctionCallArgs parseFunctionCallArguments(std::string const& _signature);
 
 	/// Parses the expected result of a function call execution.
-	FunctionCallExpectations parseFunctionCallExpectations();
+	FunctionCallExpectations parseFunctionCallExpectations(std::string const& _signature);
 
 	/// Parses the next parameter in a comma separated list.
 	/// Takes a newly parsed, and type-annotated `bytes` argument,
@@ -159,7 +177,7 @@ private:
 	/// Returns invalid ABI type for empty literal. This is needed in order
 	/// to detect empty expectations. Throws a ParserError if data is encoded incorrectly or
 	/// if data type is not supported.
-	Parameter parseParameter();
+	Parameter parseParameter(std::string const& _type);
 
 	/// Recursively parses an identifier or a tuple definition that contains identifiers
 	/// and / or parentheses like `((uint, uint), (uint, (uint, uint)), uint)`.
@@ -196,6 +214,10 @@ private:
 	size_t m_lineNumber = 0;
 
 	std::map<std::string, Builtin> const& m_builtins;
+
+	Json::Value const& m_contractAbi;
+
+	std::map<std::string, std::vector<std::string>> m_returnTypes;
 };
 
 }

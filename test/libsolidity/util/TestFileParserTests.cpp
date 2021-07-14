@@ -46,7 +46,7 @@ namespace
 vector<FunctionCall> parse(string const& _source, std::map<std::string, Builtin> const& _builtins = {})
 {
 	istringstream stream{_source, ios_base::out};
-	return TestFileParser{stream, _builtins}.parseFunctionCalls(0);
+	return TestFileParser{stream, _builtins, Json::objectValue}.parseFunctionCalls(0);
 }
 
 void testFunctionCall(

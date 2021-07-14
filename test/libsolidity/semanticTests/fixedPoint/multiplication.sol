@@ -3,5 +3,7 @@ contract c {
         return a * b;
     }
 }
+// ====
+// compileViaYul: also
 // ----
 // mul(fixed128x18,fixed128x18): 200, 10000000000000000000000 -> 2000000

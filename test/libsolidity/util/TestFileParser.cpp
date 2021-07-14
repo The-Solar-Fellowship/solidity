@@ -22,6 +22,7 @@
 #include <test/libsolidity/util/SoltestErrors.h>
 #include <test/Common.h>
 
+#include <libsolutil/FixedHash.h>
 #include <liblangutil/Common.h>
 
 #include <boost/algorithm/string.hpp>
@@ -118,7 +119,7 @@ vector<solidity::frontend::test::FunctionCall> TestFileParser::parseFunctionCall
 								call.value = parseFunctionCallValue();
 
 							if (accept(Token::Colon, true))
-								call.arguments = parseFunctionCallArguments();
+								call.arguments = parseFunctionCallArguments(call.signature);
 
 							if (accept(Token::Newline, true))
 							{
@@ -137,7 +138,7 @@ vector<solidity::frontend::test::FunctionCall> TestFileParser::parseFunctionCall
 							if (accept(Token::Arrow, true))
 							{
 								call.omitsArrow = false;
-								call.expectations = parseFunctionCallExpectations();
+								call.expectations = parseFunctionCallExpectations(call.signature);
 								if (accept(Token::Newline, true))
 									m_lineNumber++;
 							}
@@ -272,25 +273,33 @@ FunctionValue TestFileParser::parseFunctionCallValue()
 	}
 }
 
-FunctionCallArgs TestFileParser::parseFunctionCallArguments()
+FunctionCallArgs TestFileParser::parseFunctionCallArguments(string const& _signature)
 {
+	size_t ob = _signature.find('(') + 1;
+	size_t cb = _signature.find(')');
+	string signature = _signature.substr(ob, cb - ob);
+	vector<string> inputTypes;
+	boost::split(inputTypes, signature, boost::is_any_of(","));
+
 	FunctionCallArgs arguments;
 
-	auto param = parseParameter();
+	auto param = parseParameter(inputTypes.empty() ? "" : inputTypes.front());
 	if (param.abiType.type == ABIType::None)
 		BOOST_THROW_EXCEPTION(TestParserError("No argument provided."));
 	arguments.parameters.emplace_back(param);
 
+	size_t index = 1;
 	while (accept(Token::Comma, true))
-		arguments.parameters.emplace_back(parseParameter());
+		arguments.parameters.emplace_back(parseParameter(inputTypes.size() <= index ? "" : inputTypes[index++]));
 	return arguments;
 }
 
-FunctionCallExpectations TestFileParser::parseFunctionCallExpectations()
+FunctionCallExpectations TestFileParser::parseFunctionCallExpectations(string const& _signature)
 {
 	FunctionCallExpectations expectations;
 
-	auto param = parseParameter();
+	vector<string> returnTypes = m_returnTypes[_signature];
+	auto param = parseParameter(returnTypes.empty() ? "" : returnTypes.front());
 	if (param.abiType.type == ABIType::None)
 	{
 		expectations.failure = false;
@@ -298,8 +307,9 @@ FunctionCallExpectations TestFileParser::parseFunctionCallExpectations()
 	}
 	expectations.result.emplace_back(param);
 
+	size_t index = 1;
 	while (accept(Token::Comma, true))
-		expectations.result.emplace_back(parseParameter());
+		expectations.result.emplace_back(parseParameter(returnTypes.size() <= index ? "" : returnTypes[index++]));
 
 	/// We have always one virtual parameter in the parameter list.
 	/// If its type is FAILURE, the expected result is also a REVERT etc.
@@ -308,7 +318,7 @@ FunctionCallExpectations TestFileParser::parseFunctionCallExpectations()
 	return expectations;
 }
 
-Parameter TestFileParser::parseParameter()
+Parameter TestFileParser::parseParameter(std::string const& _type)
 {
 	Parameter parameter;
 	if (accept(Token::Newline, true))
@@ -407,11 +417,12 @@ Parameter TestFileParser::parseParameter()
 		if (isSigned)
 			parsed = "-" + parsed;
 
-		parameter.rawBytes = BytesUtils::applyAlign(
-			parameter.alignment,
-			parameter.abiType,
-			BytesUtils::convertNumber(parsed)
-		);
+		if (parsed.find('.') == string::npos)
+			parameter.rawBytes = BytesUtils::applyAlign(
+				parameter.alignment,
+				parameter.abiType,
+				BytesUtils::convertNumber(parsed)
+			);
 	}
 	else if (accept(Token::Failure, true))
 	{
@@ -427,6 +438,34 @@ Parameter TestFileParser::parseParameter()
 		parameter.rawString += formatToken(Token::RParen);
 	}
 
+	if (boost::starts_with(_type, "fixed"))
+	{
+		vector<string> fixedTypeParameter;
+		string fixedTypeParameterString{_type.substr(5)};
+		solAssert(fixedTypeParameterString.find('x') != string::npos, "");
+		boost::split(fixedTypeParameter, fixedTypeParameterString, boost::is_any_of("x"));
+		solAssert(fixedTypeParameter.size() == 2, "");
+		parameter.isFixedPoint = true;
+		parameter.fixedPoint_M = static_cast<unsigned>(std::stoi(fixedTypeParameter[0]));
+		parameter.fixedPoint_N = static_cast<unsigned>(std::stoi(fixedTypeParameter[1]));
+		solAssert(
+			8 <= parameter.fixedPoint_M && parameter.fixedPoint_M <= 256 && parameter.fixedPoint_M % 8 == 0 && parameter.fixedPoint_N <= 80,
+			""
+		);
+		string v_integer{parameter.rawString};
+		string v_fraction;
+		if (parameter.rawString.find('.') != string::npos)
+		{
+			v_integer = parameter.rawString.substr(0, parameter.rawString.find('.'));
+			v_fraction = {parameter.rawString.substr(parameter.rawString.find('.') + 1)};
+			solAssert(v_fraction.size() <= parameter.fixedPoint_N, "");
+			v_fraction += string(parameter.fixedPoint_N - v_fraction.size(), '0');
+		}
+		parameter.abiType.type = ABIType::FixedPoint;
+		parameter.abiType.size = 32; // parameter.fixedPoint_M / 8;
+		parameter.abiType.fixedPoint_N = parameter.fixedPoint_N;
+		parameter.rawBytes = util::fromHex(util::toHex(u256{v_integer + v_fraction}));
+	}
 	return parameter;
 }
 
@@ -667,7 +706,7 @@ string TestFileParser::Scanner::scanDecimalNumber()
 {
 	string number;
 	number += current();
-	while (langutil::isDecimalDigit(peek()))
+	while (langutil::isDecimalDigit(peek()) || peek() == '.')
 	{
 		advance();
 		number += current();

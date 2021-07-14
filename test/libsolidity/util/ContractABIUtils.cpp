@@ -124,6 +124,11 @@ bool isFixedTupleArray(string const& _type)
 	return regex_match(_type, regex{"tuple\\[\\d+\\]"});
 }
 
+bool isFixedType(string const& _type)
+{
+	return regex_match(_type, regex{"fixed.*"});
+}
+
 string functionSignatureFromABI(Json::Value const& _functionABI)
 {
 	auto inputs = _functionABI["inputs"];
@@ -245,6 +250,8 @@ bool ContractABIUtils::appendTypesFromName(
 			_dynamicTypes.push_back(ABIType{ABIType::String, ABIType::AlignLeft});
 		}
 	}
+	else if (isFixedType(type))
+		_inplaceTypes.push_back(ABIType{ABIType::UnsignedDec});
 	else if (isBytes(type))
 		return false;
 	else if (isFixedTupleArray(type))

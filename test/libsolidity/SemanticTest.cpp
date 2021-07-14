@@ -15,6 +15,7 @@
 #include <test/libsolidity/SemanticTest.h>
 
 #include <libsolutil/Whiskers.h>
+#include <libsolutil/JSON.h>
 #include <libyul/Exceptions.h>
 #include <test/Common.h>
 #include <test/libsolidity/util/BytesUtils.h>
@@ -116,12 +117,6 @@ SemanticTest::SemanticTest(
 
 	parseExpectations(m_reader.stream());
 	soltestAssert(!m_tests.empty(), "No tests specified in " + _filename);
-
-	if (m_enforceGasCost)
-	{
-		m_compiler.setMetadataFormat(CompilerStack::MetadataFormat::NoMetadata);
-		m_compiler.setMetadataHash(CompilerStack::MetadataHash::None);
-	}
 }
 
 map<string, Builtin> SemanticTest::makeBuiltins()
@@ -677,7 +672,16 @@ void SemanticTest::printUpdatedSettings(ostream& _stream, string const& _linePre
 
 void SemanticTest::parseExpectations(istream& _stream)
 {
-	m_tests += TestFileParser{_stream, m_builtins}.parseFunctionCalls(m_lineOffset);
+	m_compiler.reset();
+	if (m_enforceGasCost)
+	{
+		m_compiler.setMetadataFormat(CompilerStack::MetadataFormat::NoMetadata);
+		m_compiler.setMetadataHash(CompilerStack::MetadataHash::None);
+	}
+	m_compiler.setSources(m_sources.sources);
+	m_compiler.compile(CompilerStack::State::AnalysisPerformed);
+	Json::Value const& abi = m_compiler.contractABI(m_compiler.lastContractName());
+	m_tests += TestFileParser{_stream, m_builtins, abi}.parseFunctionCalls(m_lineOffset);
 }
 
 bool SemanticTest::deploy(

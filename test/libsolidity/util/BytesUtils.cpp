@@ -296,8 +296,8 @@ string BytesUtils::formatBytes(
 	case ABIType::String:
 		os << formatString(_bytes, _bytes.size() - countRightPaddedZeros(_bytes));
 		break;
+	case ABIType::FixedPoint:
 	case ABIType::Failure:
-		break;
 	case ABIType::None:
 		break;
 	}

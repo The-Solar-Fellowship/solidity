@@ -107,7 +107,8 @@ struct ABIType
 		SignedDec,
 		Hex,
 		HexString,
-		String
+		String,
+		FixedPoint
 	};
 	enum Align
 	{
@@ -125,6 +126,7 @@ struct ABIType
 	Type type = ABIType::None;
 	Align align = ABIType::AlignRight;
 	size_t size = 32;
+	size_t fixedPoint_N = 0;
 	bool alignDeclared = false;
 };
 
@@ -171,6 +173,9 @@ struct Parameter
 	FormatInfo format;
 	/// Stores the parsed alignment, which can be either left(...) or right(...).
 	Alignment alignment = Alignment::None;
+	bool isFixedPoint = false;
+	unsigned fixedPoint_M = 0; // presents number of bits taken by type
+	unsigned fixedPoint_N = 0; // represents the decimal points
 	/// Compares _bytes to the bytes stored in this object.
 	bool matchesBytes(bytes const& _bytes) const
 	{

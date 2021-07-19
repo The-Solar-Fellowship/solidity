@@ -20,12 +20,12 @@
 
 #include <solc/CommandLineInterface.h>
 
+#include <test/solc/Common.h>
+
 #include <test/Common.h>
+#include <test/libsolidity/util/SoltestErrors.h>
 #include <test/FilesystemUtils.h>
 #include <test/TemporaryDirectory.h>
-#include <test/libsolidity/util/SoltestErrors.h>
-
-#include <boost/test/unit_test.hpp>
 
 #include <range/v3/view/transform.hpp>
 
@@ -33,7 +33,6 @@
 #include <ostream>
 #include <set>
 #include <string>
-#include <tuple>
 #include <vector>
 
 using namespace std;
@@ -44,47 +43,8 @@ using PathSet = set<boost::filesystem::path>;
 
 #define TEST_CASE_NAME (boost::unit_test::framework::current_test_case().p_name)
 
-BOOST_TEST_DONT_PRINT_LOG_VALUE(CommandLineOptions)
-BOOST_TEST_DONT_PRINT_LOG_VALUE(InputMode)
-
 namespace
 {
-
-struct OptionsReaderAndMessages
-{
-	bool success;
-	CommandLineOptions options;
-	FileReader reader;
-	optional<string> standardJsonInput;
-	string stdoutContent;
-	string stderrContent;
-};
-
-OptionsReaderAndMessages parseCommandLineAndReadInputFiles(
-	vector<string> const& _commandLine,
-	string const& _standardInputContent = "",
-	bool _processInput = false
-)
-{
-	size_t argc = _commandLine.size();
-	vector<char const*> argv(_commandLine.size() + 1);
-
-	// C++ standard mandates argv[argc] to be NULL
-	argv[argc] = nullptr;
-
-	for (size_t i = 0; i < argc; ++i)
-		argv[i] = _commandLine[i].c_str();
-
-	stringstream sin(_standardInputContent), sout, serr;
-	CommandLineInterface cli(sin, sout, serr);
-	bool success = cli.parseArguments(static_cast<int>(argc), argv.data());
-	if (success)
-		success = cli.readInputFiles();
-	if (success && _processInput)
-		success = cli.processInput();
-
-	return {success, cli.options(), cli.fileReader(), cli.standardJsonInput(), sout.str(), serr.str()};
-}
 
 ostream& operator<<(ostream& _out, vector<ImportRemapper::Remapping> const& _remappings)
 {

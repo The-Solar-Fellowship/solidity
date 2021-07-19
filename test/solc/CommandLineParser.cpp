@@ -20,6 +20,8 @@
 
 #include <solc/CommandLineParser.h>
 
+#include <test/solc/Common.h>
+
 #include <test/Common.h>
 #include <test/libsolidity/util/SoltestErrors.h>
 
@@ -28,7 +30,6 @@
 #include <libsolidity/interface/Version.h>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/test/unit_test.hpp>
 
 #include <map>
 #include <optional>
@@ -43,25 +44,16 @@ using namespace solidity::langutil;
 using namespace solidity::util;
 using namespace solidity::yul;
 
-BOOST_TEST_DONT_PRINT_LOG_VALUE(CommandLineOptions)
-
 namespace
 {
 
 optional<CommandLineOptions> parseCommandLine(vector<string> const& _commandLine, ostream& _stdout, ostream& _stderr)
 {
-	size_t argc = _commandLine.size();
-	vector<char const*> argv(argc + 1);
-
-	// C++ standard mandates argv[argc] to be NULL
-	argv[argc] = nullptr;
-
-	for (size_t i = 0; i < argc; ++i)
-		argv[i] = _commandLine[i].c_str();
+	vector<char const*> argv = test::makeArgv(_commandLine);
 
 	CommandLineParser cliParser(_stdout, _stderr);
 	bool success = cliParser.parse(
-		static_cast<int>(argc),
+		static_cast<int>(_commandLine.size()),
 		argv.data(),
 		false // interactiveTerminal
 	);
@@ -71,7 +63,6 @@ optional<CommandLineOptions> parseCommandLine(vector<string> const& _commandLine
 	else
 		return cliParser.options();
 }
-
 
 } // namespace
 

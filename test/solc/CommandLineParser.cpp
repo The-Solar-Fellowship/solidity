@@ -48,16 +48,16 @@ BOOST_TEST_DONT_PRINT_LOG_VALUE(CommandLineOptions)
 namespace
 {
 
-optional<CommandLineOptions> parseCommandLine(vector<string> const& commandLine, ostream& _stdout, ostream& _stderr)
+optional<CommandLineOptions> parseCommandLine(vector<string> const& _commandLine, ostream& _stdout, ostream& _stderr)
 {
-	size_t argc = commandLine.size();
+	size_t argc = _commandLine.size();
 	vector<char const*> argv(argc + 1);
 
 	// C++ standard mandates argv[argc] to be NULL
 	argv[argc] = nullptr;
 
 	for (size_t i = 0; i < argc; ++i)
-		argv[i] = commandLine[i].c_str();
+		argv[i] = _commandLine[i].c_str();
 
 	CommandLineParser cliParser(_stdout, _stderr);
 	bool success = cliParser.parse(

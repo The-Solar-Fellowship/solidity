@@ -60,16 +60,16 @@ struct OptionsReaderAndMessages
 	string stderrContent;
 };
 
-OptionsReaderAndMessages parseCommandLineAndReadInputFiles(vector<string> const& commandLine)
+OptionsReaderAndMessages parseCommandLineAndReadInputFiles(vector<string> const& _commandLine)
 {
-	size_t argc = commandLine.size();
-	vector<char const*> argv(commandLine.size() + 1);
+	size_t argc = _commandLine.size();
+	vector<char const*> argv(_commandLine.size() + 1);
 
 	// C++ standard mandates argv[argc] to be NULL
 	argv[argc] = nullptr;
 
 	for (size_t i = 0; i < argc; ++i)
-		argv[i] = commandLine[i].c_str();
+		argv[i] = _commandLine[i].c_str();
 
 	stringstream sin, sout, serr;
 	CommandLineInterface cli(sin, sout, serr);

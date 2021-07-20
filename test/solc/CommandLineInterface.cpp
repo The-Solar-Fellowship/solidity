@@ -43,6 +43,8 @@ using namespace solidity::test;
 
 using PathSet = set<boost::filesystem::path>;
 
+#define TEST_CASE_NAME (boost::unit_test::framework::current_test_case().p_name)
+
 namespace
 {
 
@@ -110,8 +112,8 @@ BOOST_AUTO_TEST_CASE(multiple_input_modes)
 
 BOOST_AUTO_TEST_CASE(cli_input)
 {
-	TemporaryDirectory tempDir1("file-reader-test-");
-	TemporaryDirectory tempDir2("file-reader-test-");
+	TemporaryDirectory tempDir1(TEST_CASE_NAME);
+	TemporaryDirectory tempDir2(TEST_CASE_NAME);
 	createEmptyFilesWithParentDirs({tempDir1.path() / "input1.sol"});
 	createEmptyFilesWithParentDirs({tempDir2.path() / "input2.sol"});
 
@@ -151,8 +153,8 @@ BOOST_AUTO_TEST_CASE(cli_input)
 
 BOOST_AUTO_TEST_CASE(cli_ignore_missing_some_files_exist)
 {
-	TemporaryDirectory tempDir1("file-reader-test-");
-	TemporaryDirectory tempDir2("file-reader-test-");
+	TemporaryDirectory tempDir1(TEST_CASE_NAME);
+	TemporaryDirectory tempDir2(TEST_CASE_NAME);
 	createEmptyFilesWithParentDirs({tempDir1.path() / "input1.sol"});
 
 	// NOTE: Allowed paths should not be added for skipped files.
@@ -175,7 +177,7 @@ BOOST_AUTO_TEST_CASE(cli_ignore_missing_some_files_exist)
 
 BOOST_AUTO_TEST_CASE(cli_ignore_missing_no_files_exist)
 {
-	TemporaryDirectory tempDir("file-reader-test-");
+	TemporaryDirectory tempDir(TEST_CASE_NAME);
 
 	string expectedMessage =
 		"\"" + (tempDir.path() / "input1.sol").string() + "\" is not found. Skipping.\n"
@@ -194,7 +196,7 @@ BOOST_AUTO_TEST_CASE(cli_ignore_missing_no_files_exist)
 
 BOOST_AUTO_TEST_CASE(cli_not_a_file)
 {
-	TemporaryDirectory tempDir("file-reader-test-");
+	TemporaryDirectory tempDir(TEST_CASE_NAME);
 
 	string expectedMessage = "\"" + tempDir.path().string() + "\" is not a valid file.\n";
 
@@ -205,7 +207,7 @@ BOOST_AUTO_TEST_CASE(cli_not_a_file)
 
 BOOST_AUTO_TEST_CASE(standard_json_base_path)
 {
-	TemporaryDirectory tempDir("file-reader-test-");
+	TemporaryDirectory tempDir(TEST_CASE_NAME);
 
 	OptionsReaderAndMessages result = parseCommandLineAndReadInputFiles({
 		"solc",
@@ -247,7 +249,7 @@ BOOST_AUTO_TEST_CASE(standard_json_dash)
 
 BOOST_AUTO_TEST_CASE(standard_json_one_input_file)
 {
-	TemporaryDirectory tempDir("file-reader-test-");
+	TemporaryDirectory tempDir(TEST_CASE_NAME);
 	createEmptyFilesWithParentDirs({tempDir.path() / "input.json"});
 
 	vector<string> commandLine = {"solc", "--standard-json", (tempDir.path() / "input.json").string()};
@@ -286,7 +288,7 @@ BOOST_AUTO_TEST_CASE(standard_json_one_input_file_and_stdin)
 
 BOOST_AUTO_TEST_CASE(standard_json_ignore_missing)
 {
-	TemporaryDirectory tempDir("file-reader-test-");
+	TemporaryDirectory tempDir(TEST_CASE_NAME);
 
 	// This option is pretty much useless Standard JSON mode.
 	string expectedMessage =

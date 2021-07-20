@@ -343,8 +343,8 @@ BOOST_AUTO_TEST_CASE(standard_json_remapping)
 
 BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_no_base_path)
 {
-	TemporaryDirectory tempDirCurrent("file-reader-test-");
-	TemporaryDirectory tempDirOther("file-reader-test-");
+	TemporaryDirectory tempDirCurrent(TEST_CASE_NAME);
+	TemporaryDirectory tempDirOther(TEST_CASE_NAME);
 	TemporaryWorkingDirectory tempWorkDir(tempDirCurrent.path());
 	soltestAssert(tempDirCurrent.path().is_absolute(), "");
 	soltestAssert(tempDirOther.path().is_absolute(), "");
@@ -397,8 +397,8 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_no_base_path)
 
 BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_base_path_same_as_work_dir)
 {
-	TemporaryDirectory tempDirCurrent("file-reader-test-");
-	TemporaryDirectory tempDirOther("file-reader-test-");
+	TemporaryDirectory tempDirCurrent(TEST_CASE_NAME);
+	TemporaryDirectory tempDirOther(TEST_CASE_NAME);
 	TemporaryWorkingDirectory tempWorkDir(tempDirCurrent.path());
 	soltestAssert(tempDirCurrent.path().is_absolute(), "");
 	soltestAssert(tempDirOther.path().is_absolute(), "");
@@ -453,9 +453,9 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_base_path_same_as_work_dir)
 
 BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_base_path_different_from_work_dir)
 {
-	TemporaryDirectory tempDirCurrent("file-reader-test-");
-	TemporaryDirectory tempDirOther("file-reader-test-");
-	TemporaryDirectory tempDirBase("file-reader-test-");
+	TemporaryDirectory tempDirCurrent(TEST_CASE_NAME);
+	TemporaryDirectory tempDirOther(TEST_CASE_NAME);
+	TemporaryDirectory tempDirBase(TEST_CASE_NAME);
 	TemporaryWorkingDirectory tempWorkDir(tempDirCurrent.path());
 	soltestAssert(tempDirCurrent.path().is_absolute(), "");
 	soltestAssert(tempDirOther.path().is_absolute(), "");
@@ -516,8 +516,8 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_base_path_different_from_wor
 
 BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_relative_base_path)
 {
-	TemporaryDirectory tempDirCurrent("file-reader-test-");
-	TemporaryDirectory tempDirOther("file-reader-test-");
+	TemporaryDirectory tempDirCurrent(TEST_CASE_NAME);
+	TemporaryDirectory tempDirOther(TEST_CASE_NAME);
 	TemporaryWorkingDirectory tempWorkDir(tempDirCurrent.path());
 	soltestAssert(tempDirCurrent.path().is_absolute(), "");
 	soltestAssert(tempDirOther.path().is_absolute(), "");
@@ -579,7 +579,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_relative_base_path)
 
 BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_normalization_and_weird_names)
 {
-	TemporaryDirectory tempDir("file-reader-test-");
+	TemporaryDirectory tempDir(TEST_CASE_NAME);
 	boost::filesystem::create_directories(tempDir.path() / "x/y/z");
 	TemporaryWorkingDirectory tempWorkDir(tempDir.path() / "x/y/z");
 	soltestAssert(tempDir.path().is_absolute(), "");
@@ -745,7 +745,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_normalization_and_weird_name
 
 BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_symlinks)
 {
-	TemporaryDirectory tempDir("file-reader-test-");
+	TemporaryDirectory tempDir(TEST_CASE_NAME);
 	createEmptyFilesWithParentDirs({tempDir.path() / "x/y/z/contract.sol"});
 	boost::filesystem::create_directories(tempDir.path() / "r");
 	TemporaryWorkingDirectory tempWorkDir(tempDir.path() / "r");

@@ -171,8 +171,8 @@ BOOST_AUTO_TEST_CASE(cli_input)
 {
 	TemporaryDirectory tempDir1(TEST_CASE_NAME);
 	TemporaryDirectory tempDir2(TEST_CASE_NAME);
-	createEmptyFilesWithParentDirs({tempDir1.path() / "input1.sol"});
-	createEmptyFilesWithParentDirs({tempDir2.path() / "input2.sol"});
+	createFilesWithParentDirs({tempDir1.path() / "input1.sol"});
+	createFilesWithParentDirs({tempDir2.path() / "input2.sol"});
 
 	vector<ImportRemapper::Remapping> expectedRemappings = {
 		{"", "a", "b/c/d"},
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE(cli_ignore_missing_some_files_exist)
 {
 	TemporaryDirectory tempDir1(TEST_CASE_NAME);
 	TemporaryDirectory tempDir2(TEST_CASE_NAME);
-	createEmptyFilesWithParentDirs({tempDir1.path() / "input1.sol"});
+	createFilesWithParentDirs({tempDir1.path() / "input1.sol"});
 
 	// NOTE: Allowed paths should not be added for skipped files.
 	map<string, string> expectedSources = {{(tempDir1.path() / "input1.sol").generic_string(), ""}};
@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE(standard_json_dash)
 BOOST_AUTO_TEST_CASE(standard_json_one_input_file)
 {
 	TemporaryDirectory tempDir(TEST_CASE_NAME);
-	createEmptyFilesWithParentDirs({tempDir.path() / "input.json"});
+	createFilesWithParentDirs({tempDir.path() / "input.json"});
 
 	vector<string> commandLine = {"solc", "--standard-json", (tempDir.path() / "input.json").string()};
 	OptionsReaderAndMessages result = parseCommandLineAndReadInputFiles(commandLine);

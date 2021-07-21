@@ -779,8 +779,8 @@ void CompilerUtils::convertType(
 	bool chopSignBitsPending = false;
 	if (_chopSignBits && targetTypeCategory == Type::Category::Integer)
 		chopSignBitsPending = dynamic_cast<IntegerType const&>(_targetType).isSigned();
-	else if (_chopSignBits && targetTypeCategory == Type::Category::FixedPoint)
-		chopSignBitsPending = dynamic_cast<FixedPointType const&>(_targetType).isSigned();
+//	else if (_chopSignBits && targetTypeCategory == Type::Category::FixedPoint)
+//		chopSignBitsPending = dynamic_cast<FixedPointType const&>(_targetType).isSigned();
 
 	switch (stackTypeCategory)
 	{
@@ -833,8 +833,6 @@ void CompilerUtils::convertType(
 		}
 		break;
 	case Type::Category::FixedPoint:
-		// TODO
-		solUnimplemented("Not yet implemented - FixedPointType.");
 	case Type::Category::Address:
 	case Type::Category::Integer:
 	case Type::Category::Contract:

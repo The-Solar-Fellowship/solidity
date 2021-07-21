@@ -16,6 +16,7 @@ Bugfixes:
  * Code Generator: Fix internal compiler error when calling functions bound to calldata structs and arrays.
  * Code Generator: Fix internal compiler error when passing a 32-byte hex literal or a zero literal to ``bytes.concat()`` by disallowing such literals.
  * Commandline Interface: Fix crash when a directory path is passed to ``--standard-json``.
+ * Commandline Interface: Fix resolution of paths whitelisted with ``--allowed-paths`` or implicitly due to base path, remappings and files being compiled. Correctly handle paths that do not match imports exactly due to being relative, non-normalized or empty.
  * Commandline Interface: Read JSON from standard input when ``--standard-json`` gets ``-`` as a file name.
  * Standard JSON: Include source location for errors in files with empty name.
  * Type Checker: Fix internal error and prevent static calls to unimplemented modifiers.

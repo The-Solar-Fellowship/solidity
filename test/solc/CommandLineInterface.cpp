@@ -616,8 +616,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_normalization_and_weird_name
 	soltestAssert(tempDir.path().is_absolute(), "");
 
 	string uncPath = "//" + tempDir.path().relative_path().generic_string();
-	soltestAssert(uncPath[0] == '/' && uncPath[1] == '/', "");
-	soltestAssert(uncPath[2] != '/', "");
+	soltestAssert(FileReader::isUNCPath(uncPath), "");
 
 	boost::filesystem::path tempDirNoSymlinks = boost::filesystem::canonical(tempDir.path());
 

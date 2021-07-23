@@ -56,3 +56,19 @@ test::OptionsReaderAndMessages test::parseCommandLineAndReadInputFiles(
 
 	return {success, cli.options(), cli.fileReader(), cli.standardJsonInput(), sout.str(), serr.str()};
 }
+
+CommandLineOptions test::defaultCommandLineOptions()
+{
+	CommandLineOptions options;
+
+	options.optimizer.expectedExecutionsPerDeployment = 200;
+	options.modelChecker.initialize = true;
+	options.modelChecker.settings = {
+		ModelCheckerContracts::Default(),
+		ModelCheckerEngine::None(),
+		ModelCheckerTargets::Default(),
+		nullopt,
+	};
+
+	return options;
+}

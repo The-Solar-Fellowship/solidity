@@ -75,22 +75,6 @@ ostream& operator<<(ostream& _out, PathSet const& _paths)
 	return _out;
 }
 
-CommandLineOptions defaultCommandLineOptions()
-{
-	CommandLineOptions options;
-
-	options.optimizer.expectedExecutionsPerDeployment = 200;
-	options.modelChecker.initialize = true;
-	options.modelChecker.settings = {
-		ModelCheckerContracts::Default(),
-		ModelCheckerEngine::None(),
-		ModelCheckerTargets::Default(),
-		nullopt,
-	};
-
-	return options;
-}
-
 } // namespace
 
 namespace boost::test_tools::tt_detail

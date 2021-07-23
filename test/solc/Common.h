@@ -50,4 +50,6 @@ OptionsReaderAndMessages parseCommandLineAndReadInputFiles(
 	bool _processInput = false
 );
 
+CommandLineOptions defaultCommandLineOptions();
+
 } // namespace solidity::frontend::test

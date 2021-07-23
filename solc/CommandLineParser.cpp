@@ -301,10 +301,9 @@ bool CommandLineParser::parseInputPathsAndRemappings()
 	m_options.input.ignoreMissingFiles = (m_args.count(g_strIgnoreMissingFiles) > 0);
 
 	if (m_args.count(g_strInputFile))
-		for (string path: m_args[g_strInputFile].as<vector<string>>())
+		for (string positionalArg: m_args[g_strInputFile].as<vector<string>>())
 		{
-			auto eq = find(path.begin(), path.end(), '=');
-			if (eq != path.end())
+			if (optional<ImportRemapper::Remapping> remapping = ImportRemapper::parseRemapping(positionalArg))
 			{
 				if (m_options.input.mode == InputMode::StandardJson)
 				{
@@ -313,21 +312,16 @@ bool CommandLineParser::parseInputPathsAndRemappings()
 					return false;
 				}
 
-				if (auto r = ImportRemapper::parseRemapping(path))
-					m_options.input.remappings.emplace_back(std::move(*r));
-				else
-				{
-					serr() << "Invalid remapping: \"" << path << "\"." << endl;
-					return false;
-				}
+				auto remappingDir = boost::filesystem::path(remapping->target);
+				remappingDir.remove_filename();
+				m_options.input.allowedDirectories.insert(remappingDir);
 
-				string remappingTarget(eq + 1, path.end());
-				m_options.input.allowedDirectories.insert(boost::filesystem::path(remappingTarget).remove_filename());
+				m_options.input.remappings.emplace_back(move(remapping.value()));
 			}
-			else if (path == "-")
+			else if (positionalArg == "-")
 				m_options.input.addStdin = true;
 			else
-				m_options.input.paths.insert(path);
+				m_options.input.paths.insert(positionalArg);
 		}
 
 	if (m_options.input.mode == InputMode::StandardJson)

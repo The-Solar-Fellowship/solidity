@@ -21,8 +21,8 @@
 
 using std::equal;
 using std::move;
+using std::nullopt;
 using std::optional;
-using std::string;
 using std::string;
 using std::vector;
 
@@ -77,24 +77,24 @@ SourceUnitName ImportRemapper::apply(ImportPath const& _path, string const& _con
 	return path;
 }
 
-optional<ImportRemapper::Remapping> ImportRemapper::parseRemapping(string const& _remapping)
+optional<ImportRemapper::Remapping> ImportRemapper::parseRemapping(string const& _input)
 {
-	auto eq = find(_remapping.begin(), _remapping.end(), '=');
-	if (eq == _remapping.end())
-		return {};
+	auto equals = find(_input.begin(), _input.end(), '=');
+	if (equals == _input.end())
+		return nullopt;
 
-	auto colon = find(_remapping.begin(), eq, ':');
+	auto colon = find(_input.begin(), equals, ':');
 
-	Remapping r;
+	Remapping remapping{
+		(colon == equals ? "" : string(_input.begin(), colon)),
+		(colon == equals ? string(_input.begin(), equals) : string(colon + 1, equals)),
+		string(equals + 1, _input.end()),
+	};
 
-	r.context = colon == eq ? string() : string(_remapping.begin(), colon);
-	r.prefix = colon == eq ? string(_remapping.begin(), eq) : string(colon + 1, eq);
-	r.target = string(eq + 1, _remapping.end());
+	if (remapping.prefix.empty())
+		return nullopt;
 
-	if (r.prefix.empty())
-		return {};
-
-	return r;
+	return remapping;
 }
 
 }

@@ -60,7 +60,11 @@ struct OptionsReaderAndMessages
 	string stderrContent;
 };
 
-OptionsReaderAndMessages parseCommandLineAndReadInputFiles(vector<string> const& _commandLine)
+OptionsReaderAndMessages parseCommandLineAndReadInputFiles(
+	vector<string> const& _commandLine,
+	string const& _standardInputContent = "",
+	bool _processInput = false
+)
 {
 	size_t argc = _commandLine.size();
 	vector<char const*> argv(_commandLine.size() + 1);
@@ -71,10 +75,13 @@ OptionsReaderAndMessages parseCommandLineAndReadInputFiles(vector<string> const&
 	for (size_t i = 0; i < argc; ++i)
 		argv[i] = _commandLine[i].c_str();
 
-	stringstream sin, sout, serr;
+	stringstream sin(_standardInputContent), sout, serr;
 	CommandLineInterface cli(sin, sout, serr);
 	bool success = cli.parseArguments(static_cast<int>(argc), argv.data());
-	success = success && cli.readInputFiles();
+	if (success)
+		success = cli.readInputFiles();
+	if (success && _processInput)
+		success = cli.processInput();
 
 	return {success, cli.options(), cli.fileReader(), cli.standardJsonInput(), sout.str(), serr.str()};
 }

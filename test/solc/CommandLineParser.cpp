@@ -43,6 +43,8 @@ using namespace solidity::langutil;
 using namespace solidity::util;
 using namespace solidity::yul;
 
+BOOST_TEST_DONT_PRINT_LOG_VALUE(CommandLineOptions)
+
 namespace
 {
 
@@ -99,7 +101,7 @@ BOOST_AUTO_TEST_CASE(no_options)
 	BOOST_TEST(sout.str() == "");
 	BOOST_TEST(serr.str() == "");
 	BOOST_REQUIRE(parsedOptions.has_value());
-	BOOST_TEST((parsedOptions.value() == expectedOptions));
+	BOOST_TEST(parsedOptions.value() == expectedOptions);
 }
 
 BOOST_AUTO_TEST_CASE(help)
@@ -222,7 +224,7 @@ BOOST_AUTO_TEST_CASE(cli_mode_options)
 		BOOST_TEST(sout.str() == "");
 		BOOST_TEST(serr.str() == "");
 		BOOST_REQUIRE(parsedOptions.has_value());
-		BOOST_TEST((parsedOptions.value() == expectedOptions));
+		BOOST_TEST(parsedOptions.value() == expectedOptions);
 	}
 }
 
@@ -339,8 +341,7 @@ BOOST_AUTO_TEST_CASE(assembly_mode_options)
 		BOOST_TEST(sout.str() == "");
 		BOOST_TEST(serr.str() == "Warning: Yul is still experimental. Please use the output with care.\n");
 		BOOST_REQUIRE(parsedOptions.has_value());
-
-		BOOST_TEST((parsedOptions.value() == expectedOptions));
+		BOOST_TEST(parsedOptions.value() == expectedOptions);
 	}
 }
 
@@ -414,7 +415,7 @@ BOOST_AUTO_TEST_CASE(standard_json_mode_options)
 	BOOST_TEST(sout.str() == "");
 	BOOST_TEST(serr.str() == "");
 	BOOST_REQUIRE(parsedOptions.has_value());
-	BOOST_TEST((parsedOptions.value() == expectedOptions));
+	BOOST_TEST(parsedOptions.value() == expectedOptions);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

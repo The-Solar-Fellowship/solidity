@@ -27,11 +27,10 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <range/v3/range/conversion.hpp>
-#include <range/v3/view/map.hpp>
+#include <range/v3/view/transform.hpp>
 
-#include <fstream>
 #include <map>
+#include <ostream>
 #include <set>
 #include <string>
 #include <tuple>
@@ -44,6 +43,9 @@ using namespace solidity::test;
 using PathSet = set<boost::filesystem::path>;
 
 #define TEST_CASE_NAME (boost::unit_test::framework::current_test_case().p_name)
+
+BOOST_TEST_DONT_PRINT_LOG_VALUE(CommandLineOptions)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(InputMode)
 
 namespace
 {
@@ -77,7 +79,62 @@ OptionsReaderAndMessages parseCommandLineAndReadInputFiles(vector<string> const&
 	return {success, cli.options(), cli.fileReader(), cli.standardJsonInput(), sout.str(), serr.str()};
 }
 
+ostream& operator<<(ostream& _out, vector<ImportRemapper::Remapping> const& _remappings)
+{
+	static auto remappingToString = [](auto const& _remapping)
+	{
+		return _remapping.context + ":" + _remapping.prefix + "=" + _remapping.target;
+	};
+
+	_out << "[" << joinHumanReadable(_remappings | ranges::views::transform(remappingToString)) << "]";
+	return _out;
+}
+
+ostream& operator<<(ostream& _out, map<string, string> const& _map)
+{
+	_out << "{" << endl;
+	for (auto const& [key, value]: _map)
+		_out << "" << key << ": " << value << "," << endl;
+	_out << "}";
+
+	return _out;
+}
+
+ostream& operator<<(ostream& _out, PathSet const& _paths)
+{
+	static auto pathString = [](auto const& _path) { return _path.string(); };
+
+	_out << "{" << joinHumanReadable(_paths | ranges::views::transform(pathString)) << "}";
+	return _out;
+}
+
 } // namespace
+
+namespace boost::test_tools::tt_detail
+{
+
+// Boost won't find the << operator unless we put it in the std namespace which is illegal.
+// The recommended solution is to overload print_log_value<> struct and make it use our operator.
+
+template<>
+struct print_log_value<vector<ImportRemapper::Remapping>>
+{
+	void operator()(std::ostream& _out, vector<ImportRemapper::Remapping> const& _value) { ::operator<<(_out, _value); }
+};
+
+template<>
+struct print_log_value<map<string, string>>
+{
+	void operator()(std::ostream& _out, map<string, string> const& _value) { ::operator<<(_out, _value); }
+};
+
+template<>
+struct print_log_value<PathSet>
+{
+	void operator()(std::ostream& _out, PathSet const& _value) { ::operator<<(_out, _value); }
+};
+
+} // namespace boost::test_tools::tt_detail
 
 namespace solidity::frontend::test
 {
@@ -130,7 +187,7 @@ BOOST_AUTO_TEST_CASE(cli_input)
 		boost::filesystem::canonical(tempDir1.path()),
 		boost::filesystem::canonical(tempDir2.path()),
 		"b/c",
-		"c/d/e"
+		"c/d/e",
 	};
 
 	OptionsReaderAndMessages result = parseCommandLineAndReadInputFiles({
@@ -144,11 +201,11 @@ BOOST_AUTO_TEST_CASE(cli_input)
 
 	BOOST_TEST(result.success);
 	BOOST_TEST(result.stderrContent == "");
-	BOOST_TEST((result.options.input.mode == InputMode::Compiler));
+	BOOST_TEST(result.options.input.mode == InputMode::Compiler);
 	BOOST_TEST(result.options.input.addStdin);
-	BOOST_TEST(result.options.input.remappings == expectedRemappings);
-	BOOST_TEST(result.reader.sourceCodes() == expectedSources);
-	BOOST_TEST(result.reader.allowedDirectories() == expectedAllowedPaths);
+	BOOST_CHECK_EQUAL(result.options.input.remappings, expectedRemappings);
+	BOOST_CHECK_EQUAL(result.reader.sourceCodes(), expectedSources);
+	BOOST_CHECK_EQUAL(result.reader.allowedDirectories(), expectedAllowedPaths);
 }
 
 BOOST_AUTO_TEST_CASE(cli_ignore_missing_some_files_exist)
@@ -169,10 +226,10 @@ BOOST_AUTO_TEST_CASE(cli_ignore_missing_some_files_exist)
 	});
 	BOOST_TEST(result.success);
 	BOOST_TEST(result.stderrContent == "\"" + (tempDir2.path() / "input2.sol").string() + "\" is not found. Skipping.\n");
-	BOOST_TEST((result.options.input.mode == InputMode::Compiler));
+	BOOST_TEST(result.options.input.mode == InputMode::Compiler);
 	BOOST_TEST(!result.options.input.addStdin);
-	BOOST_TEST(result.reader.sourceCodes() == expectedSources);
-	BOOST_TEST(result.reader.allowedDirectories() == expectedAllowedPaths);
+	BOOST_CHECK_EQUAL(result.reader.sourceCodes(), expectedSources);
+	BOOST_CHECK_EQUAL(result.reader.allowedDirectories(), expectedAllowedPaths);
 }
 
 BOOST_AUTO_TEST_CASE(cli_ignore_missing_no_files_exist)
@@ -216,7 +273,7 @@ BOOST_AUTO_TEST_CASE(standard_json_base_path)
 	});
 	BOOST_TEST(result.success);
 	BOOST_TEST(result.stderrContent == "");
-	BOOST_TEST((result.options.input.mode == InputMode::StandardJson));
+	BOOST_TEST(result.options.input.mode == InputMode::StandardJson);
 	BOOST_TEST(result.options.input.addStdin);
 	BOOST_TEST(result.options.input.paths.empty());
 	BOOST_TEST(result.reader.sourceCodes().empty());
@@ -229,7 +286,7 @@ BOOST_AUTO_TEST_CASE(standard_json_no_input_file)
 	OptionsReaderAndMessages result = parseCommandLineAndReadInputFiles({"solc", "--standard-json"});
 	BOOST_TEST(result.success);
 	BOOST_TEST(result.stderrContent == "");
-	BOOST_TEST((result.options.input.mode == InputMode::StandardJson));
+	BOOST_TEST(result.options.input.mode == InputMode::StandardJson);
 	BOOST_TEST(result.options.input.addStdin);
 	BOOST_TEST(result.options.input.paths.empty());
 	BOOST_TEST(result.reader.sourceCodes().empty());
@@ -241,7 +298,7 @@ BOOST_AUTO_TEST_CASE(standard_json_dash)
 	OptionsReaderAndMessages result = parseCommandLineAndReadInputFiles({"solc", "--standard-json", "-"});
 	BOOST_TEST(result.success);
 	BOOST_TEST(result.stderrContent == "");
-	BOOST_TEST((result.options.input.mode == InputMode::StandardJson));
+	BOOST_TEST(result.options.input.mode == InputMode::StandardJson);
 	BOOST_TEST(result.options.input.addStdin);
 	BOOST_TEST(result.reader.sourceCodes().empty());
 	BOOST_TEST(result.reader.allowedDirectories().empty());
@@ -256,7 +313,7 @@ BOOST_AUTO_TEST_CASE(standard_json_one_input_file)
 	OptionsReaderAndMessages result = parseCommandLineAndReadInputFiles(commandLine);
 	BOOST_TEST(result.success);
 	BOOST_TEST(result.stderrContent == "");
-	BOOST_TEST((result.options.input.mode == InputMode::StandardJson));
+	BOOST_TEST(result.options.input.mode == InputMode::StandardJson);
 	BOOST_TEST(!result.options.input.addStdin);
 	BOOST_TEST(result.options.input.paths == PathSet{tempDir.path() / "input.json"});
 	BOOST_TEST(result.reader.allowedDirectories().empty());

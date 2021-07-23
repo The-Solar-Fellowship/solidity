@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_no_base_path)
 		otherDirNoSymlinks,
 	};
 
-	createEmptyFilesWithParentDirs(expectedOptions.input.paths);
+	createFilesWithParentDirs(expectedOptions.input.paths);
 	OptionsReaderAndMessages result = parseCommandLineAndReadInputFiles(commandLine);
 
 	BOOST_TEST(result.stderrContent == "");
@@ -439,7 +439,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_base_path_same_as_work_dir)
 		otherDirNoSymlinks,
 	};
 
-	createEmptyFilesWithParentDirs(expectedOptions.input.paths);
+	createFilesWithParentDirs(expectedOptions.input.paths);
 	OptionsReaderAndMessages result = parseCommandLineAndReadInputFiles(commandLine);
 
 	BOOST_TEST(result.stderrContent == "");
@@ -502,7 +502,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_base_path_different_from_wor
 		baseDirNoSymlinks,
 	};
 
-	createEmptyFilesWithParentDirs(expectedOptions.input.paths);
+	createFilesWithParentDirs(expectedOptions.input.paths);
 	OptionsReaderAndMessages result = parseCommandLineAndReadInputFiles(commandLine);
 
 	BOOST_TEST(result.stderrContent == "");
@@ -565,7 +565,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_relative_base_path)
 		otherDirNoSymlinks / "base",
 	};
 
-	createEmptyFilesWithParentDirs(expectedOptions.input.paths);
+	createFilesWithParentDirs(expectedOptions.input.paths);
 	OptionsReaderAndMessages result = parseCommandLineAndReadInputFiles(commandLine);
 
 	BOOST_TEST(result.stderrContent == "");
@@ -730,7 +730,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_normalization_and_weird_name
 #endif
 	};
 
-	createEmptyFilesWithParentDirs(expectedOptions.input.paths);
+	createFilesWithParentDirs(expectedOptions.input.paths);
 
 	OptionsReaderAndMessages result = parseCommandLineAndReadInputFiles(commandLine);
 
@@ -746,7 +746,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_normalization_and_weird_name
 BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_symlinks)
 {
 	TemporaryDirectory tempDir(TEST_CASE_NAME);
-	createEmptyFilesWithParentDirs({tempDir.path() / "x/y/z/contract.sol"});
+	createFilesWithParentDirs({tempDir.path() / "x/y/z/contract.sol"});
 	boost::filesystem::create_directories(tempDir.path() / "r");
 	TemporaryWorkingDirectory tempWorkDir(tempDir.path() / "r");
 

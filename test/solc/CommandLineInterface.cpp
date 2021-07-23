@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_no_base_path)
 	BOOST_TEST(result.stderrContent == "");
 	BOOST_TEST(result.stdoutContent == "");
 	BOOST_REQUIRE(result.success);
-	BOOST_TEST((result.options == expectedOptions));
+	BOOST_TEST(result.options == expectedOptions);
 	BOOST_TEST(result.reader.sourceCodes() == expectedSources);
 	BOOST_TEST(result.reader.allowedDirectories() == expectedAllowedDirectories);
 	BOOST_TEST(result.reader.basePath() == "");
@@ -445,7 +445,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_base_path_same_as_work_dir)
 	BOOST_TEST(result.stderrContent == "");
 	BOOST_TEST(result.stdoutContent == "");
 	BOOST_REQUIRE(result.success);
-	BOOST_TEST((result.options == expectedOptions));
+	BOOST_TEST(result.options == expectedOptions);
 	BOOST_TEST(result.reader.sourceCodes() == expectedSources);
 	BOOST_TEST(result.reader.allowedDirectories() == expectedAllowedDirectories);
 	BOOST_TEST(result.reader.basePath() == expectedOptions.input.basePath);
@@ -508,7 +508,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_base_path_different_from_wor
 	BOOST_TEST(result.stderrContent == "");
 	BOOST_TEST(result.stdoutContent == "");
 	BOOST_REQUIRE(result.success);
-	BOOST_TEST((result.options == expectedOptions));
+	BOOST_TEST(result.options == expectedOptions);
 	BOOST_TEST(result.reader.sourceCodes() == expectedSources);
 	BOOST_TEST(result.reader.allowedDirectories() == expectedAllowedDirectories);
 	BOOST_TEST(result.reader.basePath() == expectedOptions.input.basePath);
@@ -571,7 +571,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_relative_base_path)
 	BOOST_TEST(result.stderrContent == "");
 	BOOST_TEST(result.stdoutContent == "");
 	BOOST_REQUIRE(result.success);
-	BOOST_TEST((result.options == expectedOptions));
+	BOOST_TEST(result.options == expectedOptions);
 	BOOST_TEST(result.reader.sourceCodes() == expectedSources);
 	BOOST_TEST(result.reader.allowedDirectories() == expectedAllowedDirectories);
 	BOOST_TEST(result.reader.basePath() == expectedOptions.input.basePath);
@@ -737,7 +737,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_normalization_and_weird_name
 	BOOST_TEST(result.stderrContent == "");
 	BOOST_TEST(result.stdoutContent == "");
 	BOOST_REQUIRE(result.success);
-	BOOST_TEST((result.options == expectedOptions));
+	BOOST_TEST(result.options == expectedOptions);
 	BOOST_TEST(result.reader.sourceCodes() == expectedSources);
 	BOOST_TEST(result.reader.allowedDirectories() == expectedAllowedDirectories);
 	BOOST_TEST(result.reader.basePath() == expectedOptions.input.basePath);
@@ -797,7 +797,7 @@ BOOST_AUTO_TEST_CASE(cli_paths_to_source_unit_names_symlinks)
 	BOOST_TEST(result.stderrContent == "");
 	BOOST_TEST(result.stdoutContent == "");
 	BOOST_REQUIRE(result.success);
-	BOOST_TEST((result.options == expectedOptions));
+	BOOST_TEST(result.options == expectedOptions);
 	BOOST_TEST(result.reader.sourceCodes() == expectedSources);
 	BOOST_TEST(result.reader.allowedDirectories() == expectedAllowedDirectories);
 	BOOST_TEST(result.reader.basePath() == expectedOptions.input.basePath);

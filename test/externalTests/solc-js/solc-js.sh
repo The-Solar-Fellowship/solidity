@@ -48,9 +48,9 @@ function solcjs_test
 
     printLog "Copying SMTChecker tests..."
     # We do not copy all tests because that takes too long.
-    cp -Rf "$TEST_DIR"/test/libsolidity/smtCheckerTests/externalCalls test/
-    cp -Rf "$TEST_DIR"/test/libsolidity/smtCheckerTests/loops test/
-    cp -Rf "$TEST_DIR"/test/libsolidity/smtCheckerTests/invariants test/
+    cp -Rf "$TEST_DIR"/test/libsolidity/smtCheckerTests/external_calls test/smtCheckerTests/
+    cp -Rf "$TEST_DIR"/test/libsolidity/smtCheckerTests/loops test/smtCheckerTests/
+    cp -Rf "$TEST_DIR"/test/libsolidity/smtCheckerTests/invariants test/smtCheckerTests/
 
     # Update version (needed for some tests)
     echo "Updating package.json to version $VERSION"

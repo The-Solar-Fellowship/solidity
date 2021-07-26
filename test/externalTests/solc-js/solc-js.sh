@@ -47,8 +47,10 @@ function solcjs_test
     cp -Rf "$SOLCJS_INPUT_DIR/DAO" test/
 
     printLog "Copying SMTChecker tests..."
-    cp -Rf "$TEST_DIR"/test/libsolidity/smtCheckerTests test/
-    rm -rf test/smtCheckerTests/imports
+    # We do not copy all tests because that takes too long.
+    cp -Rf "$TEST_DIR"/test/libsolidity/smtCheckerTests/externalCalls test/
+    cp -Rf "$TEST_DIR"/test/libsolidity/smtCheckerTests/loops test/
+    cp -Rf "$TEST_DIR"/test/libsolidity/smtCheckerTests/invariants test/
 
     # Update version (needed for some tests)
     echo "Updating package.json to version $VERSION"

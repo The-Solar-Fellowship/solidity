@@ -573,14 +573,19 @@ option ``--model-checker-solvers {all,cvc4,smtlib2,z3}`` or the JSON option
 ``settings.modelChecker.solvers=[smtlib2,z3]``, where:
 
 - ``cvc4`` is only available if the ``solc`` binary is compiled with it. Only BMC uses ``cvc4``.
-- ``smtlib2`` outputs SMT/Horn queries in the `smtlib2 <http://smtlib.cs.uiowa.edu/>`_ format. These can be used together with the compiler's `callback mechanism <https://github.com/ethereum/solc-js>`_ so that any solver binary from the system can be employed to synchronously return the results of the queries to the compiler. This is currently the only way to use Eldarica, for example, since it does not have a C++ API. This can be used by both BMC and CHC depending on which solvers are called.
+- ``smtlib2`` outputs SMT/Horn queries in the `smtlib2 <http://smtlib.cs.uiowa.edu/>`_ format.
+  These can be used together with the compiler's `callback mechanism <https://github.com/ethereum/solc-js>`_ so that
+  any solver binary from the system can be employed to synchronously return the results of the queries to the compiler.
+  This is currently the only way to use Eldarica, for example, since it does not have a C++ API.
+  This can be used by both BMC and CHC depending on which solvers are called.
 - ``z3`` is available
-    - if ``solc`` is compiled with it;
-    - if a dynamic ``z3`` library of version 4.8.x is installed in a Linux system (from Solidity 0.7.6);
-    - statically in ``soljson.js`` (from Solidity 0.6.9), that is, the Javascript binary of the compiler.
+
+  - if ``solc`` is compiled with it;
+  - if a dynamic ``z3`` library of version 4.8.x is installed in a Linux system (from Solidity 0.7.6);
+  - statically in ``soljson.js`` (from Solidity 0.6.9), that is, the Javascript binary of the compiler.
 
 Since both BMC and CHC use ``z3``, and ``z3`` is available in a greater variety
-of ways, including in the browser, most users will almost never need to be
+of environments, including in the browser, most users will almost never need to be
 concerned about this option. More advanced users might apply this option to try
 alternative solvers on more complex problems.
 

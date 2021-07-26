@@ -121,18 +121,19 @@ optional<ObjectParser::SourceNameMap> ObjectParser::tryParseSourceNameMapping() 
 
 	// Matches some "@use-src TEXT".
 	static std::regex const lineRE = std::regex(
-		"(^|\\s)@use-src\\s((.|[\r\n])*)",
+		"(^|\\s)@use-src\\s",
 		std::regex_constants::ECMAScript | std::regex_constants::optimize
 	);
 	std::smatch sm;
-	if (!std::regex_match(m_scanner->currentCommentLiteral(), sm, lineRE))
+	if (!std::regex_search(m_scanner->currentCommentLiteral(), sm, lineRE, std::regex_constants::match_not_eol))
 		return nullopt;
 
-	solAssert(sm.size() == 4, "");
-	if (sm[2].length() == 0)
+	solAssert(sm.size() == 2, "");
+	auto text = m_scanner->currentCommentLiteral().substr(static_cast<size_t>(sm.length()));
+	if (text.length() == 0)
 		return SourceNameMap{};
 
-	Scanner scanner(make_shared<CharStream>(sm[2].str(), ""));
+	Scanner scanner(make_shared<CharStream>(text, ""));
 	SourceNameMap sourceNames;
 
 	while (true)

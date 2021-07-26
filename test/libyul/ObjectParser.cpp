@@ -28,7 +28,9 @@
 
 #include <libsolidity/interface/OptimiserSettings.h>
 
+#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <range/v3/view/iota.hpp>
@@ -108,8 +110,11 @@ Error expectError(string const& _source, bool _allowWarnings = false)
 
 tuple<optional<ObjectParser::SourceNameMap>, ErrorList> tryGetSourceLocationMapping(string _source)
 {
+	vector<string> lines;
+	boost::split(lines, _source, boost::is_any_of("\n"));
+	string source = util::joinHumanReadablePrefixed(lines, "\n/// ") + "\n{}\n";
+
 	ErrorList errors;
-	string source = "/// " + move(_source) + "\n{}\n";
 	ErrorReporter reporter(errors);
 	Dialect const& dialect = yul::EVMDialect::strictAssemblyForEVM(EVMVersion::berlin());
 	ObjectParser objectParser{reporter, dialect};
@@ -238,6 +243,17 @@ BOOST_AUTO_TEST_CASE(use_src_error_unexpected_trailing_tokens)
 
 	BOOST_REQUIRE_EQUAL(errors.size(), 1);
 	BOOST_CHECK_EQUAL(errors.front()->errorId().error, 9804);
+}
+
+BOOST_AUTO_TEST_CASE(use_src_multiline)
+{
+	auto const [mapping, _] = tryGetSourceLocationMapping(
+		" @use-src \n  0:\"contract.sol\" \n , \n 1:\"misc.yul\""
+	);
+	BOOST_REQUIRE(mapping);
+	BOOST_REQUIRE_EQUAL(mapping->size(), 2);
+	BOOST_REQUIRE_EQUAL(*mapping->at(0), "contract.sol");
+	BOOST_REQUIRE_EQUAL(*mapping->at(1), "misc.yul");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

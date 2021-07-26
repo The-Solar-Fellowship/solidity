@@ -12,3 +12,31 @@ pre {
 .rst-content table.docutils td {
   vertical-align: top;
 }
+
+p.remix-link-container {
+    /* Positioned in the top-right corner of the box containing the text snippet that follows it,
+     * with a small margin around it. Should not add any extra space above the snippet box. */
+    position: relative;
+    top: 0.5em;
+    right: 0.5em;
+}
+
+/* Link to Remix IDE shown over code snippets */
+a.remix-link {
+    /* Remix icon. */
+    background:url("https://remix.ethereum.org/assets/img/remixLogo.webp");
+    background-size: cover;
+    width: 30px;
+    height: 30px;
+
+    /* Text is just a fallback in case element is unstyled. By default we want just icon. */
+    font-size: 0;
+
+    /* Stick to the inner side of the right border of the parent. */
+    position: absolute;
+    right: 0;
+}
+
+a.remix-link:hover {
+    opacity: 0.5;
+}

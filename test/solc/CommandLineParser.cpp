@@ -284,6 +284,7 @@ BOOST_AUTO_TEST_CASE(assembly_mode_options)
 				"contract1.yul:A,"
 				"contract2.yul:B",
 			"--model-checker-engine=bmc",  // Ignored in assembly mode
+			"--model-checker-solvers=z3,smtlib2", // Ignored in assembly mode
 			"--model-checker-targets="     // Ignored in assembly mode
 				"underflow,"
 				"divByZero",
@@ -380,6 +381,7 @@ BOOST_AUTO_TEST_CASE(standard_json_mode_options)
 			"contract1.yul:A,"
 			"contract2.yul:B",
 		"--model-checker-engine=bmc",      // Ignored in Standard JSON mode
+		"--model-checker-solvers=z3,smtlib2", // Ignored in Standard JSON mode
 		"--model-checker-targets="         // Ignored in Standard JSON mode
 			"underflow,"
 			"divByZero",

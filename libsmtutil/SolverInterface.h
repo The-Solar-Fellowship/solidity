@@ -65,6 +65,28 @@ struct SMTSolverChoice
 		return solvers;
 	}
 
+	SMTSolverChoice& operator&(SMTSolverChoice const& _other)
+	{
+		cvc4 &= _other.cvc4;
+		smtlib2 &= _other.smtlib2;
+		z3 &= _other.z3;
+		return *this;
+	}
+
+	SMTSolverChoice& operator&=(SMTSolverChoice const& _other)
+	{
+		return *this & _other;
+	}
+
+	bool operator!=(SMTSolverChoice const& _other) const noexcept { return !(*this == _other); }
+
+	bool operator==(SMTSolverChoice const& _other) const noexcept
+	{
+		return cvc4 == _other.cvc4 &&
+			smtlib2 == _other.smtlib2 &&
+			z3 == _other.z3;
+	}
+
 	bool setSolver(std::string const& _solver)
 	{
 		static std::set<std::string> const solvers{"cvc4", "smtlib2", "z3"};

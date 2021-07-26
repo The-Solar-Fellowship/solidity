@@ -30,24 +30,12 @@ SMTCheckerTest::SMTCheckerTest(string const& _filename): SyntaxTest(_filename, E
 	auto const& choice = m_reader.stringSetting("SMTSolvers", "any");
 	if (choice == "any")
 		m_modelCheckerSettings.solvers = smtutil::SMTSolverChoice::All();
-	else if (choice == "z3")
-		m_modelCheckerSettings.solvers = smtutil::SMTSolverChoice::Z3();
-	else if (choice == "cvc4")
-		m_modelCheckerSettings.solvers = smtutil::SMTSolverChoice::CVC4();
-	else if (choice == "smtlib2")
-		m_modelCheckerSettings.solvers = smtutil::SMTSolverChoice::SMTLIB2();
 	else if (choice == "none")
 		m_modelCheckerSettings.solvers = smtutil::SMTSolverChoice::None();
-	else
+	else if (!m_modelCheckerSettings.solvers.setSolver(choice))
 		BOOST_THROW_EXCEPTION(runtime_error("Invalid SMT solver choice."));
 
-	auto available = ModelChecker::availableSolvers();
-	if (!available.z3)
-		m_modelCheckerSettings.solvers.z3 = false;
-	if (!available.cvc4)
-		m_modelCheckerSettings.solvers.cvc4 = false;
-	if (!available.smtlib2)
-		m_modelCheckerSettings.solvers.smtlib2 = false;
+	m_modelCheckerSettings.solvers &= ModelChecker::availableSolvers();
 
 	auto engine = ModelCheckerEngine::fromString(m_reader.stringSetting("SMTEngine", "all"));
 	if (engine)

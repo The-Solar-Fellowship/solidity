@@ -123,6 +123,7 @@ struct ModelCheckerSettings
 		return
 			contracts == _other.contracts &&
 			engine == _other.engine &&
+			solvers == _other.solvers &&
 			targets == _other.targets &&
 			timeout == _other.timeout;
 	}
